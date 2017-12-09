@@ -1,65 +1,60 @@
+using System;
 using FluentNHibernate.Testing;
 using NHibernate.AspNetCore.Identity.Tests.Models;
-using TestClass = NUnit.Framework.TestFixtureAttribute;
-using TestInitialize = NUnit.Framework.SetUpAttribute;
-using TestCleanup = NUnit.Framework.TearDownAttribute;
-using TestMethod = NUnit.Framework.TestAttribute;
+using Xunit;
 
 namespace NHibernate.AspNetCore.Identity.Tests
 {
-    [TestClass]
-    public class MapTest
+    public class MapTest : IDisposable
     {
-        ISession _session;
+        private readonly ISession _session;
 
-        [TestInitialize]
-        public void Initialize()
+        public MapTest()
         {
             var factory = SessionFactoryProvider.Instance.SessionFactory;
-            _session = factory.OpenSession();
+            this._session = factory.OpenSession();
             SessionFactoryProvider.Instance.BuildSchema();
         }
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            _session.Close();
-        }
-
-        [TestMethod]
+        [Fact]
         public void CanCorrectlyMapFoo()
         {
-            new PersistenceSpecification<Foo>(_session)
+            new PersistenceSpecification<Foo>(this._session)
                 .CheckProperty(c => c.String, "Foo")
                 .CheckReference(r => r.User, new ApplicationUser { UserName = "FooUser" })
                 .VerifyTheMappings();
         }
 
-        [TestMethod]
+        [Fact]
         public void CanCorrectlyMapIdentityUser()
         {
-            new PersistenceSpecification<IdentityUser>(_session)
+            new PersistenceSpecification<IdentityUser>(this._session)
                 .CheckProperty(c => c.UserName, "Lukz")
                 .VerifyTheMappings();
         }
 
-        [TestMethod]
+        [Fact]
         public void CanCorrectlyMapApplicationUser()
         {
-            new PersistenceSpecification<ApplicationUser>(_session)
+            new PersistenceSpecification<ApplicationUser>(this._session)
                 .CheckProperty(c => c.UserName, "Lukz")
                 .VerifyTheMappings();
         }
 
-        [TestMethod]
+        [Fact]
         public void CanCorrectlyMapCascadeLogins()
         {
-            new PersistenceSpecification<IdentityUser>(_session)
+            new PersistenceSpecification<IdentityUser>(this._session)
                 .CheckProperty(c => c.UserName, "Letícia")
                 .CheckComponentList(c => c.Logins, new[] { new IdentityUserLogin { LoginProvider = "Provider", ProviderKey = "Key" } })
                 //.CheckList(l => l.Logins, new[] { new IdentityUserLogin { LoginProvider = "Provider", ProviderKey = "Key" } })
                 //.CheckList(l => l.Logins, new[] { new IdentityUserLogin { LoginProvider = "Provider", ProviderKey = "Key" } }, (user, login) => user.Logins.Add(login))
                 .VerifyTheMappings();
+        }
+
+        public void Dispose()
+        {
+            this._session?.Dispose();
         }
     }
 }
