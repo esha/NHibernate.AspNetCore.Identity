@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using NHibernate.Proxy;
 
 namespace NHibernate.AspNetCore.Identity
 {
-    public class IdentityUser : IdentityUser<string>
+    public class IdentityUser : IdentityUser<string>, IEquatable<IdentityUser>
     {
         public virtual DateTime? LockoutEndDateUtc { get; set; }
 
@@ -77,36 +78,52 @@ namespace NHibernate.AspNetCore.Identity
             return RemoveFromCollection(this.Logins, login);
         }
 
+        public virtual bool Equals(IdentityUser other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            if (!this.GetType().IsUnproxiedTypeEqual(other.GetType()))
+                return false;
+            if (this.Id == null && other.Id == null)
+                return StringComparer.OrdinalIgnoreCase.Equals(this.UserName, other.UserName);
+
+            return StringComparer.OrdinalIgnoreCase.Equals(this.Id, other.Id);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as IdentityUser);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id?.GetHashCode() ?? UserName?.GetHashCode() ?? 0;
+        }
+
         private void EnsureLoginsCollection()
         {
             if (this.Logins == null)
-            {
                 this.Logins = new List<IdentityUserLogin>();
-            }
         }
 
         private void EnsureTokensCollection()
         {
             if (this.Tokens == null)
-            {
                 this.Tokens = new List<IdentityUserToken>();
-            }
         }
 
         private void EnsureRolesCollection()
         {
             if (this.Roles == null)
-            {
                 this.Roles = new List<IdentityRole>();
-            }
         }
 
         private void EnsureClaimsCollection()
         {
             if (this.Claims == null)
-            {
                 this.Claims = new List<IdentityUserClaim>();
-            }
         }
 
         private void AddToCollection<T>(ICollection<T> collection, T item)
@@ -117,9 +134,7 @@ namespace NHibernate.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(item));
 
             if (!collection.Contains(item))
-            {
                 collection.Add(item);
-            }
         }
 
         private bool RemoveFromCollection<T>(ICollection<T> collection, T item)

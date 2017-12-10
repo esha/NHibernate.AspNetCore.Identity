@@ -30,6 +30,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
                 typeof(IdentityUserClaim),
                 typeof(IdentityUserToken),
                 typeof(IdentityUserLogin),
+                typeof(Foo)
             };
 
             var mapper = new ModelMapper();
@@ -39,6 +40,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             mapper.AddMapping<IdentityUserClaimMap>();
             mapper.AddMapping<IdentityUserTokenMap>();
             mapper.AddMapping<IdentityUserLoginMap>();
+            mapper.AddMapping<FooMap>();
 
             var mapping = mapper.CompileMappingForEach(allEntities);
 

@@ -11,7 +11,7 @@ namespace NHibernate.AspNetCore.Identity
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            if (other.GetType() != this.GetType())
+            if (!this.GetType().IsUnproxiedTypeEqual(other.GetType()))
                 return false;
 
             return this.LoginProvider == other.LoginProvider &&
