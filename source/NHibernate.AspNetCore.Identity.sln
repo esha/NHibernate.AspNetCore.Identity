@@ -8,9 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B4B930
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.AspNetCore.Identity", "NHibernate.AspNetCore.Identity\NHibernate.AspNetCore.Identity.csproj", "{C620FAAE-F1B6-479E-9959-C46C20ED0A8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NHibernate.AspNetCore.Identity", "NHibernate.AspNetCore.Identity\NHibernate.AspNetCore.Identity.csproj", "{C620FAAE-F1B6-479E-9959-C46C20ED0A8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.AspNetCore.Identity.Tests", "NHibernate.AspNetCore.Identity.Tests\NHibernate.AspNetCore.Identity.Tests.csproj", "{4AB55157-6F8F-423C-9C6F-A3A92B2101CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.AspNetCore.Identity.Tests", "NHibernate.AspNetCore.Identity.Tests\NHibernate.AspNetCore.Identity.Tests.csproj", "{D9F71D46-2995-4FC0-8FE0-02DF234A2D7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +22,10 @@ Global
 		{C620FAAE-F1B6-479E-9959-C46C20ED0A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C620FAAE-F1B6-479E-9959-C46C20ED0A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C620FAAE-F1B6-479E-9959-C46C20ED0A8A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AB55157-6F8F-423C-9C6F-A3A92B2101CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AB55157-6F8F-423C-9C6F-A3A92B2101CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AB55157-6F8F-423C-9C6F-A3A92B2101CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AB55157-6F8F-423C-9C6F-A3A92B2101CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9F71D46-2995-4FC0-8FE0-02DF234A2D7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9F71D46-2995-4FC0-8FE0-02DF234A2D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9F71D46-2995-4FC0-8FE0-02DF234A2D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9F71D46-2995-4FC0-8FE0-02DF234A2D7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
