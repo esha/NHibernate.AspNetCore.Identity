@@ -231,8 +231,9 @@ namespace NHibernate.AspNetCore.Identity.Tests
             this._userManager.Options.Lockout.MaxFailedAccessAttempts = 3;
             this._userManager.Options.Lockout.AllowedForNewUsers = true;
             this._userManager.Options.Lockout.DefaultLockoutTimeSpan = new TimeSpan(0, 10, 0);
-            await this._userManager.CreateAsync(new ApplicationUser { UserName = "test", LockoutEnabled = true }, "Welcome");
-            var user = await this._userManager.FindByNameAsync("test");
+            await this._userManager.CreateAsync(new ApplicationUser { UserName = "565840D3-0753-4A7F-AA21-94305F211E34", LockoutEnabled = true }, "Welcome");
+            var user = await this._userManager.FindByNameAsync("565840D3-0753-4A7F-AA21-94305F211E34");
+            Assert.NotNull(user);
             Assert.Equal(0, await this._userManager.GetAccessFailedCountAsync(user));
             await this._userManager.AccessFailedAsync(user);
             Assert.Equal(1, await this._userManager.GetAccessFailedCountAsync(user));
@@ -245,8 +246,8 @@ namespace NHibernate.AspNetCore.Identity.Tests
         [Fact]
         public async Task FindByName()
         {
-            await this._userManager.CreateAsync(new ApplicationUser { UserName = "test", Email = "aaa@bbb.com", EmailConfirmed = true }, "Welcome");
-            var x = await this._userManager.FindByNameAsync("tEsT");
+            await this._userManager.CreateAsync(new ApplicationUser { UserName = "49AE8F3A73C146CB8E1C947BB23A0152", Email = "aaa@bbb.com", EmailConfirmed = true }, "Welcome");
+            var x = await this._userManager.FindByNameAsync("49ae8f3a73c146cb8e1c947bb23a0152");
             Assert.NotNull(x);
             Assert.True(await this._userManager.IsEmailConfirmedAsync(x));
         }
