@@ -1,12 +1,60 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using NHibernate.AspNetCore.Identity.Tests.Models;
 using NHibernate.Cfg;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace NHibernate.AspNetCore.Identity.Tests
 {
+    [XunitTestCaseDiscoverer("NHibernate.AspNetCore.Identity.Tests.DbFactDiscoverer", "NHibernate.AspNetCore.Identity.Tests")]
+    public class DbFactAttribute : FactAttribute
+    {
+    }
+
+
+    public class DbFactDiscoverer : IXunitTestCaseDiscoverer
+    {
+        private readonly IMessageSink _diagnosticMessageSink;
+        public DbFactDiscoverer(IMessageSink diagnosticMessageSink)
+        {
+            this._diagnosticMessageSink = diagnosticMessageSink;
+        }
+
+        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        {
+            yield return new DbFactTestCase(this._diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+        }
+    }
+
+    public class DbFactTestCase : XunitTestCase
+    {
+        [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+        public DbFactTestCase() { }
+
+        public DbFactTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments) { }
+
+        public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            object[] constructorArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+        {
+            // The constructorArguments can be replaced here to include the name of the test method to the ctor of the test class
+            var result = await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
+            return result;
+        }
+    }
+
     public sealed class SessionFactoryProvider
     {
         private static volatile SessionFactoryProvider _instance;

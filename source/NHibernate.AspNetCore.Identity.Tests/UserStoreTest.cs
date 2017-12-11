@@ -20,10 +20,11 @@ namespace NHibernate.AspNetCore.Identity.Tests
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UpperInvariantLookupNormalizer _normalizer = new UpperInvariantLookupNormalizer();
         
-        public UserStoreTest()
+        public UserStoreTest(String testName)
         {
             var factory = SessionFactoryProvider.Instance.SessionFactory;
-            this._session = factory.OpenSession();
+            // Create a new connection that points to a sqllite db named by testName and pass this to the session
+            this._session = factory.OpenSession(testConnection);
             SessionFactoryProvider.Instance.BuildSchema();
             var serviceProviderMock = new Mock<IServiceProvider>();
 
@@ -44,7 +45,8 @@ namespace NHibernate.AspNetCore.Identity.Tests
                 new Logger<RoleManager<IdentityRole>>(loggerFactory));
         }
 
-        [Fact]
+        // Use [DbFact] for tests needing the database
+        [DbFact]
         public async Task WhenHaveNoUser()
         {
             var store = new UserStore<IdentityUser>(this._session);
