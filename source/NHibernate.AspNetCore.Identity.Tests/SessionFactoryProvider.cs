@@ -115,13 +115,17 @@ namespace NHibernate.AspNetCore.Identity.Tests
 
         public void BuildSchema(DbConnection connection = null)
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"schema.sql");
+            var path = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                $@"schema{connection?.DataSource}.sql");
 
             // this NHibernate tool takes a configuration (with mapping info in)
             // and exports a database schema from it
             var schemaExport = new SchemaExport(this._configuration);
             schemaExport.SetOutputFile(path);
-            schemaExport.Create(true, true /* DROP AND CREATE SCHEMA */);
+            schemaExport.Create(
+                useStdOut: true,
+                execute: false);
 
             if (connection != null)
             {
@@ -131,6 +135,13 @@ namespace NHibernate.AspNetCore.Identity.Tests
                     justDrop: false,
                     connection: connection,
                     exportOutput: null);
+            }
+            else
+            {
+                schemaExport.Execute(
+                    useStdOut: false,
+                    execute: true,
+                    justDrop: false);
             }
         }
     }
