@@ -1,14 +1,15 @@
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NHibernate.AspNetCore.Identity.Tests.Models;
 using NHibernate.Linq;
+using System;
+using System.Data.SQLite;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Transactions;
 using Xunit;
 
 namespace NHibernate.AspNetCore.Identity.Tests
@@ -20,25 +21,49 @@ namespace NHibernate.AspNetCore.Identity.Tests
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UpperInvariantLookupNormalizer _normalizer = new UpperInvariantLookupNormalizer();
         
-        public UserStoreTest(String testName)
+        //public UserStoreTest(String testName)
+        public UserStoreTest()
         {
-            var factory = SessionFactoryProvider.Instance.SessionFactory;
-            // Create a new connection that points to a sqllite db named by testName and pass this to the session
-            this._session = factory.OpenSession(testConnection);
-            SessionFactoryProvider.Instance.BuildSchema();
+
+            // Create a new connection that points to a sqlite db named by testName and pass this to the session
+            var testConnection = new SQLiteConnection($@"Data Source={Guid.NewGuid()}.dat;Version=3;New=True;");
+            testConnection.Open();
+
+            // Note: OpenSession(DbConnection) is deprecated as of NHibernate
+            // v5.0.3. We use it here because it allows us to set a session
+            // connection and open the session in one threadsafe call on the
+            // SessionFactoryProvider instance.
+            //
+            // The alternative would be to use:
+            //      factory.WithOptions().Connection(testConnection);
+            //      factory.OpenSession();
+            //
+            // Should we ever switch to that alternative, care must be taken to
+            // deal with race conditions that may arise.
+            this._session = SessionFactoryProvider.Instance.SessionFactory.OpenSession(testConnection);
+            SessionFactoryProvider.Instance.BuildSchema(testConnection);
             var serviceProviderMock = new Mock<IServiceProvider>();
 
             var loggerFactory = new LoggerFactory();
-            this._userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this._session),
-                new OptionsManager<IdentityOptions>(new OptionsFactory<IdentityOptions>(new IConfigureOptions<IdentityOptions>[0], new IPostConfigureOptions<IdentityOptions>[0])),
-                new PasswordHasher<ApplicationUser>(new OptionsManager<PasswordHasherOptions>(new OptionsFactory<PasswordHasherOptions>(new IConfigureOptions<PasswordHasherOptions>[0], new IPostConfigureOptions<PasswordHasherOptions>[0]))),
+            this._userManager = new UserManager<ApplicationUser>(
+                new UserStore<ApplicationUser>(this._session),
+                new OptionsManager<IdentityOptions>(
+                    new OptionsFactory<IdentityOptions>(
+                        new IConfigureOptions<IdentityOptions>[0],
+                        new IPostConfigureOptions<IdentityOptions>[0])),
+                new PasswordHasher<ApplicationUser>(
+                    new OptionsManager<PasswordHasherOptions>(
+                        new OptionsFactory<PasswordHasherOptions>(
+                            new IConfigureOptions<PasswordHasherOptions>[0],
+                            new IPostConfigureOptions<PasswordHasherOptions>[0]))),
                 new IUserValidator<ApplicationUser>[0],
                 new IPasswordValidator<ApplicationUser>[0],
                 this._normalizer,
                 new IdentityErrorDescriber(),
                 serviceProviderMock.Object,
                 new Logger<UserManager<ApplicationUser>>(loggerFactory));
-            this._roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this._session),
+            this._roleManager = new RoleManager<IdentityRole>(
+                new RoleStore<IdentityRole>(this._session),
                 new IRoleValidator<IdentityRole>[0],
                 this._normalizer,
                 new IdentityErrorDescriber(),
@@ -55,7 +80,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.Null(user);
         }
 
-        [Fact]
+        [DbFact]
         public async Task WhenAddLoginAsync()
         {
             var user = new IdentityUser("Lukz");
@@ -75,7 +100,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.Equal(user.UserName, userStored.UserName);
         }
 
-        [Fact]
+        [DbFact]
         public async Task WhenRemoveLoginAsync()
         {
             var user = new IdentityUser("Lukz 03");
@@ -95,7 +120,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.False(actual.Logins.Any());
         }
 
-        [Fact]
+        [DbFact]
         public async Task WhenCreateUserAsync()
         {
             var user = new ApplicationUser { UserName = "RealUserName" };
@@ -113,7 +138,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.Equal(user.UserName, actual.UserName);
         }
 
-        [Fact]
+        [DbFact]
         public async Task GivenHaveRoles_WhenDeleteUser_ThenDeletingCausesNoCascade()
         {
             var user = new IdentityUser("Lukz 04");
@@ -136,7 +161,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.True(await this._session.Query<IdentityRole>().AnyAsync(x => x.Name == "ADM"));
         }
 
-        [Fact]
+        [DbFact]
         public async Task WhenRemoveUserFromRole_ThenDoNotDeleteRole_BugFix()
         {
             var user = new IdentityUser("Lukz 05");
@@ -161,7 +186,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.True(this._session.Query<IdentityRole>().Any(x => x.Name == roleName));
         }
 
-        [Fact]
+        [DbFact]
         public async Task GetAllUsers()
         {
             var user1 = new IdentityUser("Lukz 04");
@@ -192,7 +217,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             Assert.Equal(4, resul.Count());
         }
 
-        [Fact]
+        [DbFact]
         public async Task GetAllRoles()
         {
             var user1 = new IdentityUser("Lukz 04");
