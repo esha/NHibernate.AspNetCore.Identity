@@ -1,16 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
-using Castle.Core.Internal;
 using NHibernate.AspNetCore.Identity.Tests.Models;
 using NHibernate.Cfg;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -50,8 +47,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             ExceptionAggregator aggregator,
             CancellationTokenSource cancellationTokenSource)
         {
-            // The constructorArguments can be replaced here to include the name of the test method to the ctor of the test class
-            //constructorArguments = new object[] {this.TestMethod.Method.Name};
+            constructorArguments[0] = this.TestMethod.Method.Name;
             var result = await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
             return result;
         }

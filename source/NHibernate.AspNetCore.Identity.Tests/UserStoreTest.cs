@@ -20,13 +20,13 @@ namespace NHibernate.AspNetCore.Identity.Tests
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UpperInvariantLookupNormalizer _normalizer = new UpperInvariantLookupNormalizer();
-        
-        //public UserStoreTest(String testName)
-        public UserStoreTest()
-        {
 
+        public UserStoreTest(String testName = null)
+        {
             // Create a new connection that points to a sqlite db named by testName and pass this to the session
-            var testConnection = new SQLiteConnection($@"Data Source={Guid.NewGuid()}.dat;Version=3;New=True;");
+            var dataSource = testName ?? Guid.NewGuid().ToString();
+            var testConnection = new SQLiteConnection(
+                $@"Data Source={dataSource}.dat;Version=3;New=True;");
             testConnection.Open();
 
             // Note: OpenSession(DbConnection) is deprecated as of NHibernate
