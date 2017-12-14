@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using NHibernate.AspNetCore.Identity.Tests.Models;
 using NHibernate.Cfg;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -19,7 +18,6 @@ namespace NHibernate.AspNetCore.Identity.Tests
     public class DbFactAttribute : FactAttribute
     {
     }
-
 
     public class DbFactDiscoverer : IXunitTestCaseDiscoverer
     {
@@ -49,7 +47,7 @@ namespace NHibernate.AspNetCore.Identity.Tests
             ExceptionAggregator aggregator,
             CancellationTokenSource cancellationTokenSource)
         {
-            // The constructorArguments can be replaced here to include the name of the test method to the ctor of the test class
+            constructorArguments[0] = this.TestMethod.Method.Name;
             var result = await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
             return result;
         }
@@ -62,15 +60,9 @@ namespace NHibernate.AspNetCore.Identity.Tests
         private readonly Configuration _configuration;
 
         public ISessionFactory SessionFactory { get; }
-        public string Name { get; }
 
-        /// <summary>
-        /// constructor configures a SessionFactory based on the configuration passed in
-        /// </summary>
         private SessionFactoryProvider()
         {
-            Name = "NHibernate.AspNetCore.Identity";
-
             var allEntities = new[] { 
                 typeof(IdentityUser), 
                 typeof(ApplicationUser), 
@@ -91,7 +83,6 @@ namespace NHibernate.AspNetCore.Identity.Tests
             mapper.AddMapping<FooMap>();
 
             var mapping = mapper.CompileMappingForEach(allEntities);
-
             this._configuration = new Configuration();
             this._configuration.Configure("sqlite-nhibernate-config.xml");
             foreach (var map in mapping)
@@ -118,15 +109,36 @@ namespace NHibernate.AspNetCore.Identity.Tests
             }
         }
 
-        public void BuildSchema()
+        public void BuildSchema(DbConnection connection = null)
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"schema.sql");
+            var path = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                $@"schema{connection?.DataSource}.sql");
 
             // this NHibernate tool takes a configuration (with mapping info in)
             // and exports a database schema from it
-            new SchemaExport(_configuration)
-                .SetOutputFile(path)
-                .Create(true, true /* DROP AND CREATE SCHEMA */);
+            var schemaExport = new SchemaExport(this._configuration);
+            schemaExport.SetOutputFile(path);
+            schemaExport.Create(
+                useStdOut: true,
+                execute: false);
+
+            if (connection != null)
+            {
+                schemaExport.Execute(
+                    useStdOut: false,
+                    execute: true,
+                    justDrop: false,
+                    connection: connection,
+                    exportOutput: null);
+            }
+            else
+            {
+                schemaExport.Execute(
+                    useStdOut: false,
+                    execute: true,
+                    justDrop: false);
+            }
         }
     }
 }

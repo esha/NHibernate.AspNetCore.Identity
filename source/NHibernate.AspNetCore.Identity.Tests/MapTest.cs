@@ -1,7 +1,6 @@
-using System;
 using FluentNHibernate.Testing;
 using NHibernate.AspNetCore.Identity.Tests.Models;
-using NHibernate.Util;
+using System;
 using Xunit;
 
 namespace NHibernate.AspNetCore.Identity.Tests
