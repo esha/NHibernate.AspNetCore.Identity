@@ -19,6 +19,8 @@ namespace NHibernate.AspNetCore.Identity
     public class UserStore<TUser> : UserStoreBase<TUser, string, IdentityUserClaim, IdentityUserLogin, IdentityUserToken<string>>, IUserRoleStore<TUser>
         where TUser : IdentityUser
     {
+        private static readonly IList<string> _emptyRoles = new string[0];
+
         /// <summary>
         /// If true then disposing this object will also dispose (close) the session. False means that external code is responsible for disposing the session.
         /// </summary>
@@ -364,7 +366,7 @@ namespace NHibernate.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(user));
 
             await this.Context.SaveOrUpdateAsync(user, cancellationToken);
-            return user.Roles?.Select(u => u.Name).ToList();
+            return user.Roles?.Select(u => u.Name).ToList() ?? _emptyRoles;
         }
 
         public virtual async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
