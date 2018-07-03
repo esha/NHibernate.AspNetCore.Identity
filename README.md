@@ -27,14 +27,7 @@ Entity Framework provider (Microsoft.AspNetCore.Identity.EntityFrameworkCore). T
 These instructions assume you know how to set up NHibernate within an MVC application.
 
 1. Create a new ASP.NET Core 2.0 project, choosing the Individual User Accounts authentication type.
-1. Remove the Entity Framework packages and replace with NHibernate Identity:
-
-```PowerShell
-Uninstall-Package Microsoft.AspNetCore.Identity.EntityFrameworkCore
-Uninstall-Package EntityFramework
-Install-Package NHibernate.AspNetCore.Identity
-```
-
+2. Remove the Entity Framework packages and replace with NHibernate Identity.
 3. In ~/Models/IdentityModels.cs:
   a. Remove the namespace: Microsoft.AspNetCore.Identity.EntityFrameworkCore
   a. Add the namespace: NHibernate.AspNetCore.Identity
@@ -87,4 +80,4 @@ Install-Package NHibernate.AspNetCore.Identity
 
 ## Thanks To ##
 
-Special thanks to [Antônio Milesi Bastos](https://github.com/milesibastos) whos [NHibernate.AspNet.Identity](https://github.com/nhibernate/NHibernate.AspNet.Identity) project gave me the base for jumpstarting the NHibernate ASP.NET Core 2.0 provider
+Special thanks to [Antônio Milesi Bastos](https://github.com/milesibastos) whose [NHibernate.AspNet.Identity](https://github.com/nhibernate/NHibernate.AspNet.Identity) project provided the base for jumpstarting the NHibernate ASP.NET Core 2.0 provider.
